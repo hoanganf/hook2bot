@@ -1,0 +1,5 @@
+hook2bot:
+  google-api:
+    host: https://chat.googleapis.com
+server:
+  port : 8081
