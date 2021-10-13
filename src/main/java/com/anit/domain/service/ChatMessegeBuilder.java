@@ -11,6 +11,9 @@ import java.util.Map;
  */
 public class ChatMessegeBuilder {
     private static final String KEY_REPOSITORY = "repository";
+    private static final String KEY_BASE = "base";
+    private static final String KEY_TITLE = "title";
+    private static final String KEY_MERGED = "merged";
     private static final String KEY_REF = "ref";
     private static final String KEY_ISSUE = "issue";
     private static final String KEY_PULL_REQUEST = "pull_request";
@@ -25,15 +28,33 @@ public class ChatMessegeBuilder {
     public ChatMessage buildPullRequestOpened(Payload payload) {
         Integer pullRequestNo = payload.getValue(KEY_NUMBER);
         Map<String, String> repository = payload.getValue(KEY_REPOSITORY);
-        Map<String, String> pullRequest = payload.getValue(KEY_PULL_REQUEST);
+        Map<String, Object> pullRequest = payload.getValue(KEY_PULL_REQUEST);
         Map<String, String> sender = payload.getValue(KEY_SENDER);
 
         String repositoryFullName = repository.get(KEY_FULL_NAME);
         String repositoryHtmlUrl = repository.get(KEY_HTML_URL);
-        String pullRequestHtmlUrl = pullRequest.get(KEY_HTML_URL);
+        String pullRequestHtmlUrl = (String) pullRequest.get(KEY_HTML_URL);
+        String title = (String) pullRequest.get(KEY_TITLE);
         String login = sender.get(KEY_LOGIN);
 
-        return ChatMessage.of("User *" + login + "* open pull request <" + pullRequestHtmlUrl + "|#" + pullRequestNo + "> on repository <" + repositoryHtmlUrl + "|" + repositoryFullName + ">");
+        return ChatMessage.of("User *" + login + "* open pull request <" + pullRequestHtmlUrl + "|#" + pullRequestNo + " " + title + "> on repository <" + repositoryHtmlUrl + "|" + repositoryFullName + ">");
+    }
+
+    public ChatMessage buildPullRequestClosed(Payload payload) {
+        Integer pullRequestNo = payload.getValue(KEY_NUMBER);
+        Map<String, String> repository = payload.getValue(KEY_REPOSITORY);
+        Map<String, Object> pullRequest = payload.getValue(KEY_PULL_REQUEST);
+        Map<String, Object> base = (Map<String, Object>) pullRequest.get(KEY_BASE);
+        Map<String, String> sender = payload.getValue(KEY_SENDER);
+
+        String repositoryFullName = repository.get(KEY_FULL_NAME);
+        String repositoryHtmlUrl = repository.get(KEY_HTML_URL);
+        String pullRequestHtmlUrl = (String) pullRequest.get(KEY_HTML_URL);
+        String title = (String) pullRequest.get(KEY_TITLE);
+        String ref = (String) base.get(KEY_REF);
+        String login = sender.get(KEY_LOGIN);
+
+        return ChatMessage.of("User *" + login + "* merge into " + ref + " from <" + pullRequestHtmlUrl + "|#" + pullRequestNo + " " + title + "> of repository <" + repositoryHtmlUrl + "|" + repositoryFullName + ">");
     }
 
     public ChatMessage buildPullRequestComment(Payload payload) {
@@ -48,8 +69,9 @@ public class ChatMessegeBuilder {
         String repositoryHtmlUrl = repository.get(KEY_HTML_URL);
         String login = sender.get(KEY_LOGIN);
         String commentBody = comment.get(KEY_BODY);
+        String title = (String) issue.get(KEY_TITLE);
 
-        return ChatMessage.of("User *" + login + "*" + " comment on pull request <" + pullRequestHtmlUrl + "|#" + pullRequestNo + "> of repository <" + repositoryHtmlUrl + "|" + repositoryFullName + "> ```\n" + commentBody + "\n```");
+        return ChatMessage.of("User *" + login + "*" + " comment on pull request <" + pullRequestHtmlUrl + "|#" + pullRequestNo + " " + title + "> of repository <" + repositoryHtmlUrl + "|" + repositoryFullName + "> ```\n" + commentBody + "\n```");
     }
 
     public ChatMessage buildPushToMaster(Payload payload) {

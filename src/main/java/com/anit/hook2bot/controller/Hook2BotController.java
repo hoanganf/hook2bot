@@ -35,7 +35,7 @@ public class Hook2BotController {
     private final GoogleChatBotClient client;
     private final WebhookService webhookService;
 
-    @PostMapping("/v1/hook2bot/google/spaces/{space}/messages")
+    @PostMapping("/hook2bot/google/spaces/{space}/messages")
     public ResponseEntity<String> hookToGoogle(
             @RequestHeader("X-Github-Event") String gitEventStr,
             @PathVariable Space space,

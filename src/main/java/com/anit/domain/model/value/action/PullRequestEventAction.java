@@ -41,6 +41,10 @@ public enum PullRequestEventAction {
         return this == OPENED;
     }
 
+    public boolean isClosed() {
+        return this == CLOSED;
+    }
+
     public boolean isReopened() {
         return this == REOPENED;
     }

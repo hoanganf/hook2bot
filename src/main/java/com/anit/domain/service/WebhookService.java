@@ -8,6 +8,8 @@ import com.anit.domain.model.value.ShouldSendMessageToChat;
 import com.anit.domain.model.value.action.PullRequestEventAction;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Map;
+
 /**
  * @author anit
  */
@@ -24,13 +26,22 @@ public class WebhookService {
                 resultBuilder.chatMessage(chatMessegeBuilder.buildPullRequestOpened(payload));
                 return resultBuilder.build();
             }
+            if (action.isClosed()) {
+                Map<String, Object> pullRequest = payload.getValue("pull_request");
+                Boolean merged = (Boolean) pullRequest.get("merged");
+                if(merged){
+                    resultBuilder.shouldSendMessageToChat(ShouldSendMessageToChat.ofTrue());
+                    resultBuilder.chatMessage(chatMessegeBuilder.buildPullRequestClosed(payload));
+                    return resultBuilder.build();
+                }
+            }
         }
         if (event.isPullRequestReviewComment() || event.isIssueComment()) {
             resultBuilder.shouldSendMessageToChat(ShouldSendMessageToChat.ofTrue());
             resultBuilder.chatMessage(chatMessegeBuilder.buildPullRequestComment(payload));
             return resultBuilder.build();
         }
-
+/*
         if (event.isPush()) {
             Ref ref = Ref.of(payload.getValueAsString("ref"));
             if (ref.isMaster() || ref.isStaging() || ref.isProduction()) {
@@ -39,7 +50,7 @@ public class WebhookService {
                 return resultBuilder.build();
             }
 
-        }
+        }*/
         resultBuilder.shouldSendMessageToChat(ShouldSendMessageToChat.of(Boolean.FALSE));
         return resultBuilder.build();
     }
